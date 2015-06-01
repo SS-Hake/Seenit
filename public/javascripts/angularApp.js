@@ -5,7 +5,12 @@ var app = angular.module('seenit', ['ui.router'])
 		.state('home', {
 			url:'/',
 			templateUrl: '/home.html',
-			controller: 'MainCtrl'
+			controller: 'MainCtrl',
+			resolve: {
+				postPromise: ['posts', function(posts) {
+					return posts.getAll();
+				}]
+			}
 		})
 		.state('posts', {
 			url:'/posts/{id}',
@@ -17,10 +22,24 @@ var app = angular.module('seenit', ['ui.router'])
 	}
 ]);
 
-app.factory('posts', [function() {
+app.factory('posts', ['$http', function($http) {
 	
 	var o = {
 		posts: []
+	};
+
+	o.getAll = function() {
+		//Read and copy the posts from the backend.
+		return $http.get('/posts').success(function(data) {
+			//Copy on the lowest level to make sure change proliferates.
+			angular.copy(data, o.posts);
+		});
+	};
+
+	o.create = function(post) {
+		return $http.post('/posts', post).success(function(data) {
+			o.posts.push(data);
+		});
 	};
 
 	return o;
@@ -35,7 +54,12 @@ app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
 		$scope.addPost = function(){
 			if(!$scope.title || $scope.title === '') return;
 
-			$scope.posts.push({
+			posts.create({
+				title: $scope.title, 
+				link: $scope.link
+			});
+
+			/*$scope.posts.push({
 				title: $scope.title, 
 				link: $scope.link, 
 				upvotes: 0,
@@ -43,7 +67,7 @@ app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
 					{author: 'Bill', body: 'Excellent!!', upvotes: 0},
 					{author: 'Ted', body: 'Awesome!!', upvotes: 0}
 				]
-			});
+			});*/
 			$scope.title = null;
 			$scope.link = null;
 		}
