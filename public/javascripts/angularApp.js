@@ -3,7 +3,7 @@ var app = angular.module('seenit', ['ui.router'])
 	function($stateProvider, $urlRouterProvider) {
 		$stateProvider
 		.state('home', {
-			url:'/home',
+			url:'/',
 			templateUrl: '/home.html',
 			controller: 'MainCtrl'
 		})

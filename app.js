@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+
+//Include the mongoose Schemas.
 require('./models/Posts');
 require('./models/Comments');
 
@@ -28,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
+//Require the models.
 //Connect to mongodb locally.
 mongoose.connect('mongodb://localhost/news');
 
