@@ -53,6 +53,10 @@ router.get('/posts/:post', function(req, res) {
 	res.json(req.post);
 });
 
+router.delete('/posts/:post', function(req, res) {
+	console.log("Del happened");
+});
+
 //Route for upvote schema method.
 router.put('/posts/:post/upvote', function(req, res, next) {
 	req.post.upvote(function(err, post) {
@@ -82,22 +86,22 @@ router.post('/posts/:post/comments', function(req, res, next) {
 
 //Increment comment upvotes
 router.put('/posts/:post/comments/:comment/upvote', function(req, res, next) {
-	req.post.upvote(function(err, post) {
+	req.comment.upvote(function(err, comment) {
 		if(err) return next(err);
 
-		res.json(post);
+		res.json(comment);
 	})
 });
 
 //Preloading comments.
 router.param('comment', function(req, res, next, id) {
-	var query = Post.findById(id);
+	var query = Comment.findById(id);
 
-	query.exec(function(err, post) {
+	query.exec(function(err, comment) {
 		if(err) return next(err);
-		if(!post) return next(new Error('can\'t find post'));
+		if(!post) return next(new Error('can\'t find comment'));
 
-		req.post = post;
+		req.comment = comment;
 		return next();
 	});
 });
@@ -109,5 +113,7 @@ router.get('/posts/:post', function(req, res, next) {
 		res.json(post);
 	})
 });
+
+
 
 module.exports = router;
