@@ -27,6 +27,7 @@ var app = angular.module('seenit', ['ui.router'])
 	}
 ]);
 
+//Handles posts comments and upvotes from backend
 app.factory('posts', ['$http', function($http) {
 	
 	var o = {
@@ -80,6 +81,13 @@ app.factory('posts', ['$http', function($http) {
 	};
 
 	return o;
+}]);
+
+//Handles authentication
+app.factory('auth', ['$http', '$window', function($http, $window) {
+	var auth = {};
+
+	return auth;
 }]);
 
 app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
