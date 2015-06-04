@@ -47,8 +47,8 @@ var app = angular.module('seenit', ['ui.router'])
 	}
 ]);
 
-//Handles posts comments and upvotes from backend
-app.factory('posts', ['$http', function($http) {
+//Handles posts comments and upvotes from backend 
+app.factory('posts', ['$http', 'auth', function($http, auth) {
 	
 	var o = {
 		posts: []
@@ -63,7 +63,9 @@ app.factory('posts', ['$http', function($http) {
 	};
 
 	o.create = function(post) {
-		return $http.post('/posts', post).success(function(data) {
+		return $http.post('/posts', post, {
+			headers: {Authorization: 'Bearer ' + auth.getToken}
+		}).success(function(data) {
 			o.posts.push(data);
 		});
 	};
@@ -76,10 +78,11 @@ app.factory('posts', ['$http', function($http) {
 
 	//Post to increment backend upvote, then reflect change client side.
 	o.upvote = function(post) {
-		return $http.put('/posts/' + post._id + '/upvote')
-			.success(function(data) {
-				post.upvotes += 1;
-			});
+		return $http.put('/posts/' + post._id + '/upvote', null, {
+			headers: {Authorization: 'Bearer ' + auth.getToken()}
+		}).success(function(data) {
+			post.upvotes += 1;
+		});
 	};
 
 	//Get the single selected post from backend.
@@ -90,14 +93,17 @@ app.factory('posts', ['$http', function($http) {
 	};
 
 	o.addComment = function(id, comment) {
-		return $http.post('/posts/' + id + '/comments', comment);
+		return $http.post('/posts/' + id + '/comments', comment, {
+			headers: {Authorization: 'Bearer ' + auth.getToken()}
+		});
 	};
 
 	o.upvoteComment = function(post, comment) {
-		return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote')
-			.success(function(data) {
-				comment.upvotes += 1;
-			});
+		return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote', null, {
+			headers: {Authorization: 'Bearer ' + auth.getToken()}
+		}).success(function(data) {
+			comment.upvotes += 1;
+		});
 	};
 
 	return o;
@@ -139,6 +145,7 @@ app.factory('auth', ['$http', '$window', function($http, $window) {
 	 auth.register = function(user) {
 	 	return $http.post('/register', user).success(function(data) {
 	 		auth.saveToken(data.token);
+	 		console.log("Registering...")
 	 	});
 	 };
 
@@ -155,11 +162,12 @@ app.factory('auth', ['$http', '$window', function($http, $window) {
 	return auth;
 }]);
 
-app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
+app.controller('MainCtrl', ['$scope', 'posts', 'auth', function($scope, posts, auth){
 
 		$scope.test = 'Hello world!';
 
 		$scope.posts = posts.posts;
+		$scope.isLoggedIn = auth.isLoggedIn;
 
 		$scope.addPost = function(){
 			if(!$scope.title || $scope.title === '') return;
@@ -168,7 +176,6 @@ app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
 				title: $scope.title, 
 				link: $scope.link
 			});
-
 			/*$scope.posts.push({
 				title: $scope.title, 
 				link: $scope.link, 
@@ -191,10 +198,10 @@ app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
 		}
 	}
 ])
-.controller('PostsCtrl', ['$scope', 'posts', 'post', function($scope, posts, post) {
+.controller('PostsCtrl', ['$scope', 'posts', 'post', 'auth', function($scope, posts, post, auth) {
 
 	$scope.post = post;
-
+	$scope.isLoggedIn = auth.isLoggedIn;
 
 	$scope.addComment = function() {
 		if($scope.body === '') return;
@@ -234,4 +241,9 @@ app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
 			$state.go('home');
 		});
 	};
+}])
+.controller('NavCtrl', ['$scope', 'auth', function($scope, auth) {
+	$scope.isLoggedIn = auth.isLoggedIn;
+	$scope.currentUser = auth.currentUser;
+	$scope.logOut = auth.logOut;
 }]);

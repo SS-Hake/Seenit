@@ -12,6 +12,16 @@
 </head>
 <body ng-app="seenit">
 
+	<!-- NavBar - Show log-in and register if not already logged in, if they are show user and log out option-->
+	<nav class="navbad navbar-default pull-right" ng-controller="NavCtrl">
+		<ul class="nav navbar-nav">
+			<li ng-show="isLoggedIn()"><a>{{currentUser()}}</a></li>
+			<li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
+			<li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
+			<li ng-hide="isloggedIn()"><a href="/#/register">Register</a></li>
+		</ul>
+	</nav>
+
 	<div class="row">
 		<div class="col-md-6 col-md-offset-3">
 			<ui-view></ui-view>
@@ -28,11 +38,11 @@
 			<a ng-show="post.link" href="{{post.link}}">{{post.title}}</a>
 			<span><a href="#/posts/{{post._id}}">Comments</a></span>
 			<span ng-hide="post.link" style="font-size:20px; margin-left:10px;">{{post.title}}</span>
+			<span ng-show="post.author">posted by <a>{{post.author}}</a></span>
 			- upvotes: {{post.upvotes}}
-			
 		</div>
 
-		<form ng-submit="addPost()" style="margin-top:30px;">
+		<form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
 			<div class="form-group">
 				<input type="text" placeholder="Post" ng-model="title" class="form-control"></input>
 				<br>
@@ -42,6 +52,10 @@
 			<button type="submit" class="btn btn-primary">Post</button>
 
 		</form>
+
+		<div ng-hide="isLoggedIn()">
+			<h3>Please <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> to post and vote.</h3>
+		</div>
 	</script>
 
 	<script type="text/ng-template" id="/posts.html">
@@ -65,8 +79,7 @@
 			</span>
 		</div>
 
-		<form ng-submit="addComment()"
-			style="margin-top:30px;">
+		<form ng-submit="addComment()" ng-show="isLoggedIn()" style="margin-top:30px;">
 			<h3>Add a new comment</h3>
 
 			<div class="form-group">
@@ -77,6 +90,10 @@
 			</div>
 			<button type="submit" class="btn btn-primary">Post</button>
 		</form>
+
+		<div ng-hide="isLoggedIn()">
+			<h3>Please <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> to comment.</h3>
+		</div>
 	</script>
 
 	<script type="text/ng-template" id="/register.html">
@@ -123,7 +140,7 @@
 		</form>
 	</script>
 
-	
+
 
 </body>
 </html>

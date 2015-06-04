@@ -133,12 +133,15 @@ router.post('/register', function(req, res, next) {
 	var user = new User();
 
 	user.username = req.body.username;
-
+	console.log("Register route...")
 	user.setPassword(req.body.password);
 
 	user.save(function(err) {
-		if(err) return next(err);
-
+		if(err) {
+			console.log("error!");
+			return next(err);
+		}
+		console.log("Register route...")
 		return res.json({token: user.generateJWT()});
 	});
 });
