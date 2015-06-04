@@ -139,6 +139,7 @@ router.post('/register', function(req, res, next) {
 	user.save(function(err) {
 		if(err) {
 			console.log("error!");
+			console.log(err);
 			return next(err);
 		}
 		console.log("Register route...")
