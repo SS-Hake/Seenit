@@ -21,6 +21,26 @@ var app = angular.module('seenit', ['ui.router'])
 					return posts.get($stateParams.id);
 				}]
 			}
+		})
+		.state('login', {
+			url:'/login',
+			templateUrl: '/login.html',
+			controller: 'AuthCtrl',
+			onEnter: ['$state', 'auth', function($state, auth) {
+				if(auth.isLoggedIn()) {
+					$state.go('home');
+				}
+			}]
+		})
+		.state('register', {
+			url: '/register',
+			templateUrl: '/register.html',
+			controller: 'AuthCtrl',
+			onEnter: ['$state', 'auth', function($state, auth) {
+				if(auth.isLoggedIn()) {
+					$state.go('home');
+				}
+			}]
 		});
 
 		$urlRouterProvider.otherwise('/');
@@ -192,4 +212,26 @@ app.controller('MainCtrl', ['$scope', 'posts', function($scope, posts){
 		posts.upvoteComment(post, comment);
 	};
 
+}])
+.controller('AuthCtrl', ['$scope', '$state', 'auth', function($scope, $state, auth) {
+
+	//Initialize a user.
+	$scope.user = {};
+	//Call respective methods from factory.
+	//If no errors send them home.
+	$scope.register = function() {
+		auth.register($scope.user).error(function(error) {
+			$scope.error = error;
+		}).then(function() {
+			$state.go('home');
+		});
+	};
+	//If no errors send them home with promise..
+	$scope.logIn = function() {
+		auth.logIn($scope.user).error(function(error) {
+			$scope.error = error;
+		}).then(function() {
+			$state.go('home');
+		});
+	};
 }]);
